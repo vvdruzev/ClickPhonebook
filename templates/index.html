@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
+
+    <title>Narrow Jumbotron Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="narrow-jumbotron.css" rel="stylesheet">
+</head>
+
+<body>
+<div class="container" style=""></div>
+
+<!-- /container -->
+
+
+<div class="container" style="max-width: 900px; min-width: 0px; text-align: left; float: none;">
+    <form style="">
+        <div class="form-group">
+            <div class="form-group" style=""><label>Text</label><input type="text" class="form-control"></div>
+        </div>
+    </form>
+    <button> <a type="button" class="btn btn-success" href="/items/new"
+            style="background-color: rgb(44, 200, 66); float: none; display: inline-block; top: auto; left: auto; right: auto;">
+        New</a>
+    </button>
+    <div class="m-5">
+        <table class="table" style="">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ $Phones := .Phones }}
+            {{ $Contacts := .Contacts }}
+            {{range $key, $value := $Contacts }}
+            <tr>
+                <th scope="row">{{$value.Id}}</th>
+                <td>{{$value.FirstName}} &nbsp;{{$value.LastName}}
+                    <button type="button" class="btn btn-primary"
+                            style="text-align: left; float: right; border-style: solid;">AddPhone
+                    </button>
+                </td>
+                <td>
+                {{ $val := index $Phones $key}}
+                {{ range $val}}
+                    <li><b>{{ . }}</b></li>
+                {{end}}
+                </td>
+                <td style="max-width: 170px; width: 171px;">
+                    <a href="/items/{{.Id}}" class="btn btn-primary">Edit</a>
+                    <span data-id="{{.Id}}" class="do-delete btn btn-danger">Del</span>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
