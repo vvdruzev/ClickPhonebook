@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
-	"ClicksPhonebook/schema"
-	"ClicksPhonebook/logger"
+	"ClickPhonebook/schema"
+	"ClickPhonebook/logger"
 )
 
 type Mysqlrepo struct {
@@ -65,7 +65,8 @@ func (db Mysqlrepo) AddContact(firstname string, lastname string) error {
 
 func (db Mysqlrepo) AddPhone(idContact int, phone string) error {
 	result, err := db.Db.Exec(
-		"INSERT INTO Phonenumber (`phonenumber`) VALUES (?)",
+		"INSERT INTO Phonenumber (id,phonenumber) VALUES (?,?)",
+		idContact,
 		phone,
 	)
 	if err != nil {

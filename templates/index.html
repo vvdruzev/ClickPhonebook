@@ -2,17 +2,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
 
     <title>Narrow Jumbotron Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="narrow-jumbotron.css" rel="stylesheet">
 </head>
 
 <body>
@@ -27,10 +22,10 @@
             <div class="form-group" style=""><label>Text</label><input type="text" class="form-control"></div>
         </div>
     </form>
-    <button> <a type="button" class="btn btn-success" href="/items/new"
+    <a class="btn btn-success" href="/contacts/new"
             style="background-color: rgb(44, 200, 66); float: none; display: inline-block; top: auto; left: auto; right: auto;">
         New</a>
-    </button>
+
     <div class="m-5">
         <table class="table" style="">
             <thead>
@@ -48,9 +43,9 @@
             <tr>
                 <th scope="row">{{$value.Id}}</th>
                 <td>{{$value.FirstName}} &nbsp;{{$value.LastName}}
-                    <button type="button" class="btn btn-primary"
-                            style="text-align: left; float: right; border-style: solid;">AddPhone
-                    </button>
+                    <a class="btn btn-primary" href="/contacts/{{.Id}}"
+                            style="text-align: left; float: right; border-style: solid;">AddPhone </a>
+
                 </td>
                 <td>
                 {{ $val := index $Phones $key}}

@@ -11,15 +11,11 @@
 
 <body>
 <div class="container" >
-    <h1>Edit item</h1>
-    <form method="post" action="/contacts/new">
+    <h1>Add Phonenumber</h1>
+    <form method="post" action="/contacts/{{.Id}}">
         <div class="form-group" >
-            <label>First Name</label>
-            <input type="text" class="form-control" name="firstname" id="title" value="{{.Firstname}}">
-        </div>
-        <div class="form-group" >
-            <label>Last Name</label>
-            <input type="text" class="form-control" name="lastname" id="title" value="{{.Lastname}}">
+            <label for="PhoneNumber">Phonenumber</label>
+            <input type="text" class="form-control" name="PhoneNumber" id="PhoneNumber" value="{{.PhoneNumber}}">
         </div>
         <button type="submit" class="btn btn-primary" >Submit</button>
     </form>
