@@ -50,6 +50,6 @@ func Update(contact schema.Contact,phones []string) error  {
 	return impl.Update(contact,phones)
 }
 
-func Search(field string) (map[int]schema.Contact, error)  {
-	return impl.Search(field)
+func Search(search string) (map[int]schema.Contact, error)  {
+	return impl.Search(search)
 }
