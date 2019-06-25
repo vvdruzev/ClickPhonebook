@@ -136,7 +136,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
-	field := r.FormValue("field")
+	field := r.FormValue("search")
 
 	contacts, err := db.Search(field)
 

@@ -175,7 +175,6 @@ func (db Mysqlrepo) selectItemPhones(contact *schema.Contact) error {
 }
 
 func (db Mysqlrepo) SelectItem(id int) (schema.Contact, error) {
-	contacts := make(map[int]schema.Contact)
 	sqlStr := "select id, firstname, lastname from Contacts where id=?"
 	rowscontact := db.Db.QueryRow(sqlStr, id)
 	contact := &schema.Contact{}
@@ -185,17 +184,16 @@ func (db Mysqlrepo) SelectItem(id int) (schema.Contact, error) {
 		return schema.Contact{}, err
 	}
 	db.selectItemPhones(contact)
-	contacts[contact.Id] = *contact
 
 	return *contact, nil
 }
 
-func (db Mysqlrepo) Search(field string) (map[int]schema.Contact, error) {
+func (db Mysqlrepo) Search(search string) (map[int]schema.Contact, error) {
 	contacts := make(map[int]schema.Contact)
 	sqlStr := `select id, firstname, lastname from Contacts where upper(firstname) like upper(concat('%',?, '%'))
-union all select id, firstname, lastname from Contacts where upper(lastname)  like upper(concat('%',?, '%'))
+union select id, firstname, lastname from Contacts where upper(lastname)  like upper(concat('%',?, '%'))
 `
-	rows, err := db.Db.Query(sqlStr, field, field)
+	rows, err := db.Db.Query(sqlStr, search, search)
 	for rows.Next() {
 		contact := &schema.Contact{}
 		err = rows.Scan(&contact.Id, &contact.FirstName, &contact.LastName)
@@ -208,7 +206,7 @@ union all select id, firstname, lastname from Contacts where upper(lastname)  li
 	}
 	rows.Close()
 
-	rows, err = db.Db.Query("select contact_id from Phonenumber where upper(Phonenumber) like upper(concat('%',?,'%'))", field)
+	rows, err = db.Db.Query("select contact_id from Phonenumber where upper(Phonenumber) like upper(concat('%',?,'%'))", search)
 	for rows.Next() {
 		contactId := new(int)
 		err = rows.Scan(&contactId)
