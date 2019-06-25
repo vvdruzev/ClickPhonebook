@@ -4,10 +4,11 @@ type Contact struct {
 	Id        int
 	FirstName string
 	LastName  string
-	Phone []string
+	Phones []string
 }
 
 type Phone struct {
-	Id          int
+	ContactId          int
 	PhoneNumber string
 }
+

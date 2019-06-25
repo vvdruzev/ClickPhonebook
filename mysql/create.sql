@@ -12,9 +12,9 @@ create table Contacts
   lastname  varchar(50) null
 );
 
-insert into Contacts (`id`,`firstname`, `lastname`) values
-    (1,'ivan','ivanov'),
-    (2,'petr','petrov');
+insert into Contacts (`firstname`, `lastname`) values
+    ('ivan','ivanov'),
+    ('petr','petrov');
 
 
 
@@ -22,9 +22,14 @@ insert into Contacts (`id`,`firstname`, `lastname`) values
 DROP TABLE IF EXISTS Phonenumber;
 create table Phonenumber
 (
-  id          int         not null,
-  phonenumber varchar(10) null
+  contact_id  int         not null,
+  phonenumber varchar(10) null,
+  constraint Phonenumber_Contacts_id_fk
+  foreign key (contact_id) references Contacts (id)
+    on update cascade
+    on delete cascade
 );
+
 
 insert into Phonenumber (contact_id, Phonenumber) VALUES
 ('1', '952000001'),

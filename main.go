@@ -10,18 +10,38 @@ import (
 	"ClickPhonebook/handler"
 	"html/template"
 	"ClickPhonebook/db"
+	"log"
+	"github.com/kelseyhightower/envconfig"
 )
+
+type Config struct {
+	MysqlDB           string `envconfig:"MYSQL_DATABASE"`
+	MysqlUser         string `envconfig:"MYSQL_USER"`
+	MysqlPassword     string `envconfig:"MYSQL_PASSWORD"`
+	ProxyUrl			 string `envconfig:"HTTP_PROXY"`
+}
 
 func main() {
 	logger.NewLogger()
 	// основные настройки к базе
-	dsn := "dbuser:dbpassword@tcp(172.21.0.2:3306)/devdb?"
+	var cfg Config
+	err := envconfig.Process("", &cfg)
+	if err != nil {
+		logger.Error(err)
+		log.Fatal(err)
+	}
+
+	dsn := fmt.Sprintf("%s:%s@tcp(mysql:3306)/%s?",cfg.MysqlUser,cfg.MysqlPassword,cfg.MysqlDB)
 	// указываем кодировку
 	dsn += "&charset=utf8"
 	// отказываемся от prapared statements
 	// параметры подставляются сразу
 	dsn += "&interpolateParams=true"
 	mysqlrepo, err:=db.NewMysqlrepo(&dsn)
+	if err !=nil  {
+		logger.Error("Error DB. Please check your connect for DB",err,dsn)
+		log.Fatal()
+	}
 
 	db.SetRepository(mysqlrepo)
 
@@ -32,9 +52,10 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
+	logger.Info("Connect to DB ",cfg.MysqlDB, ", user " , cfg.MysqlUser)
 
 	handlers := handler.NewHandler()
-	handlers.Tmpl = template.Must(template.ParseGlob("templates/*"))
+	handlers.Tmpl = template.Must(template.ParseGlob("/templates/*"))
 
 	// в целям упрощения примера пропущена авторизация и csrf
 	r := mux.NewRouter()
@@ -47,12 +68,7 @@ func main() {
 	r.HandleFunc("/contacts/{id}", handlers.Edit).Methods("GET")
 	r.HandleFunc("/contacts/{id}", handlers.Update).Methods("POST")
 	r.HandleFunc("/contacts/{id}", handlers.Delete).Methods("DELETE")
-
-
-	//r.HandleFunc("/items/{id}", handlers.Edit).Methods("GET")
-	//r.HandleFunc("/items/{id}", handlers.Update).Methods("POST")
-	//r.HandleFunc("/items/{id}", handlers.Delete).Methods("DELETE")
-
+	r.HandleFunc("/search", handlers.Search).Methods("GET")
 
 
 	fmt.Println("starting server at :8080")

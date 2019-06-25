@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 )
 
-func ResponseOk(w http.ResponseWriter, body interface{}) {
-	b,_:= json.Marshal(body)
+func ResponseOk(w http.ResponseWriter, body []byte) {
+
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	w.Write(body)
 }
 
 func ResponseError(w http.ResponseWriter, code int, message string) {

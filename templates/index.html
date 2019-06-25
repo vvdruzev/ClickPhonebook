@@ -21,7 +21,7 @@
             </div>
             <!--end of col-->
             <div class="col">
-                <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search topics or keywords" name="filder" id="filder" value="{{.filder}}">
+                <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search topics or keywords" name="field" id="field" >
             </div>
             <!--end of col-->
             <div class="col-auto">
@@ -45,8 +45,7 @@
             </tr>
             </thead>
             <tbody>
-            {{ $Phones := .Phones }}
-            {{ $Contacts := .Contacts }}
+            {{ $Contacts := . }}
             {{range $key, $value := $Contacts }}
             <tr>
                 <th scope="row">{{$value.Id}}</th>
@@ -56,8 +55,7 @@
 
                 </td>
                 <td>
-                {{ $val := index $Phones $key}}
-                {{ range $val}}
+                {{ range $value.Phones}}
                     <li><b>{{ . }}</b></li>
                 {{end}}
                 </td>
