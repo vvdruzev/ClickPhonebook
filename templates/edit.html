@@ -2,32 +2,37 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../../../favicon.ico">
-
-    <title>Narrow Jumbotron Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
-    <link href="narrow-jumbotron.css" rel="stylesheet">
 </head>
 
 <body>
 <div class="container" style="">
-    <div class="m-5">
-        <div class="form-group" style=""><label>First Name</label><input type="text" class="form-control"></div>
-        <div class="form-group" style="">
-            <div class="form-group" style=""><label>Last Name</label><input type="text" class="form-control"></div>
-            <label>Phonenumber</label><input type="text" class="form-control">
-            <button type="button" class="btn btn-primary" style="">Submit</button>
+    <h1>Edit contacts</h1>
+
+    <form method="post" action="/contacts/{{.Contacts.Id}}">
+
+
+        <div class="form-group">
+            <label for="firstname">First Name</label>
+            <input type="text" class="form-control" name="firstname" id="firstname" value="{{.Contacts.FirstName}}">
         </div>
-    </div>
-</div>
-<div class="container" style="">
-    <div class="m-5"></div>
+        <div class="form-group">
+            <label for="lastname">Last Name</label>
+            <input type="text" class="form-control" name="lastname" id="lastname" value="{{.Contacts.LastName}}">
+        </div>
+    {{ range .Phones}}
+        <div class="form-group">
+            <label>Phonenumber </label>
+            <input type="text" class="form-control" name="phonenumber" id="phonenumber" value="{{.}}">
+        </div>
+    {{end}}
+
+        <button type="submit" class="btn btn-primary" >Submit</button>
+    </form>
+
 </div>
 
 <!-- /container -->

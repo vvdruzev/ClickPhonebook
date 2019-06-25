@@ -15,7 +15,7 @@ import (
 func main() {
 	logger.NewLogger()
 	// основные настройки к базе
-	dsn := "dbuser:dbpassword@tcp(172.19.0.2:3306)/devdb?"
+	dsn := "dbuser:dbpassword@tcp(172.21.0.2:3306)/devdb?"
 	// указываем кодировку
 	dsn += "&charset=utf8"
 	// отказываемся от prapared statements
@@ -42,8 +42,12 @@ func main() {
 	r.HandleFunc("/contacts", handlers.List).Methods("GET")
 	r.HandleFunc("/contacts/new", handlers.AddForm).Methods("GET")
 	r.HandleFunc("/contacts/new", handlers.Add).Methods("POST")
-	r.HandleFunc("/contacts/{id}", handlers.AddFormPhone).Methods("GET")
-	r.HandleFunc("/contacts/{id}", handlers.AddPhone).Methods("POST")
+	r.HandleFunc("/contacts/{id}/addphone", handlers.AddFormPhone).Methods("GET")
+	r.HandleFunc("/contacts/{id}/addphone", handlers.AddPhone).Methods("POST")
+	r.HandleFunc("/contacts/{id}", handlers.Edit).Methods("GET")
+	r.HandleFunc("/contacts/{id}", handlers.Update).Methods("POST")
+	r.HandleFunc("/contacts/{id}", handlers.Delete).Methods("DELETE")
+
 
 	//r.HandleFunc("/items/{id}", handlers.Edit).Methods("GET")
 	//r.HandleFunc("/items/{id}", handlers.Update).Methods("POST")
