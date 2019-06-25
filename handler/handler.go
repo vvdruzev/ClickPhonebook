@@ -21,15 +21,9 @@ func NewHandler() *Handler  {
 }
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
-	contacts, phones, err := db.List()
+	contacts,err := db.List()
 
-	err = h.Tmpl.ExecuteTemplate(w, "index.html", struct {
-		Contacts map[int]schema.Contact
-		Phones map[int][]string
-	}{
-		contacts,
-		phones,
-	})
+	err = h.Tmpl.ExecuteTemplate(w, "index.html", contacts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,7 +56,7 @@ func (h *Handler) AddFormPhone(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		util.ResponseError(w,500,"Bad id")
 	}
-	item.Id = id
+	item.ContactId = id
 	err = h.Tmpl.ExecuteTemplate(w, "addphone.html", item)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -89,17 +83,11 @@ func (h *Handler) Edit (w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		util.ResponseOk(w,"Bad id")
+		util.ResponseError(w,500,"Bad id")
 	}
-	contacts, phones, err := db.SelectItem(id)
+	contact, err := db.SelectItem(id)
 
-	err = h.Tmpl.ExecuteTemplate(w, "edit.html", &struct {
-		Contacts schema.Contact
-		Phones []string
-	}{
-		contacts[id],
-		phones[id],
-	})
+	err = h.Tmpl.ExecuteTemplate(w, "edit.html", contact)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -112,7 +100,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.FormValue("phonenumber"))
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		util.ResponseOk(w,"Bad id")
+		util.ResponseError(w,500,"Bad id")
 	}
 	var contact schema.Contact
 	contact.Id = id
@@ -133,18 +121,28 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		util.ResponseOk(w,"Bad id")
+		util.ResponseError(w,500,"Bad id")
 	}
 
 	err = db.Delete(id)
 	if err != nil {
-		util.ResponseOk(w,"Error delete contact")
+		util.ResponseError(w,500,"Error delete contact")
 	}
 
-	//w.Header().Set("Content-type", "application/json")
-	resp := `{"affected": ` + strconv.Itoa(int(id)) + `}`
-	//w.Write([]byte(resp))
-	util.ResponseOk(w, resp)
+	w.Header().Set("Content-type", "application/json")
+	resp :=[]byte(`{"affected": ` + strconv.Itoa(int(id)) + `}`)
+	w.Write(resp)
 
 }
 
+func (h *Handler) Search(w http.ResponseWriter, r *http.Request) {
+	field := r.FormValue("field")
+
+	contacts, err := db.Search(field)
+
+	err = h.Tmpl.ExecuteTemplate(w, "index.html", contacts)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}

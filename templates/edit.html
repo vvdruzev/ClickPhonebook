@@ -12,16 +12,16 @@
 <div class="container" style="">
     <h1>Edit contacts</h1>
 
-    <form method="post" action="/contacts/{{.Contacts.Id}}">
+    <form method="post" action="/contacts/{{.Id}}">
 
 
         <div class="form-group">
             <label for="firstname">First Name</label>
-            <input type="text" class="form-control" name="firstname" id="firstname" value="{{.Contacts.FirstName}}">
+            <input type="text" class="form-control" name="firstname" id="firstname" value="{{.FirstName}}">
         </div>
         <div class="form-group">
             <label for="lastname">Last Name</label>
-            <input type="text" class="form-control" name="lastname" id="lastname" value="{{.Contacts.LastName}}">
+            <input type="text" class="form-control" name="lastname" id="lastname" value="{{.LastName}}">
         </div>
     {{ range .Phones}}
         <div class="form-group">

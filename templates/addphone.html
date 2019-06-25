@@ -12,7 +12,7 @@
 <body>
 <div class="container" >
     <h1>Add Phonenumber</h1>
-    <form method="post" action="/contacts/{{.Id}}/addphone">
+    <form method="post" action="/contacts/{{.ContactId}}/addphone">
         <div class="form-group" >
             <label for="PhoneNumber">Phonenumber</label>
             <input type="text" class="form-control" name="PhoneNumber" id="PhoneNumber" value="{{.PhoneNumber}}">

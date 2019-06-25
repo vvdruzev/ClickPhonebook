@@ -87,9 +87,8 @@ func (db Mysqlrepo) AddPhone(idContact int, phone string) error {
 	return nil
 }
 
-func (db Mysqlrepo) List() (map[int]schema.Contact, map[int][]string, error) {
+func (db Mysqlrepo) List() (map[int]schema.Contact, error) {
 	contacts := make(map[int]schema.Contact)
-	phones := make(map[int][]string)
 	sqlStr := "select id, firstname, lastname from Contacts"
 	rows, err := db.Db.Query(sqlStr)
 	for rows.Next() {
@@ -97,23 +96,13 @@ func (db Mysqlrepo) List() (map[int]schema.Contact, map[int][]string, error) {
 		err = rows.Scan(&contact.Id, &contact.FirstName, &contact.LastName)
 		if err != nil {
 			logger.Error("Can't select rows", err)
-			return nil, nil, err
+			return nil, err
 		}
+		db.selectItemPhones(contact)
 		contacts[contact.Id] = *contact
 	}
-
-	rows, err = db.Db.Query("select contact_id, Phonenumber from Phonenumber")
-	for rows.Next() {
-		phone := &schema.Phone{}
-		err = rows.Scan(&phone.Id, &phone.PhoneNumber)
-		if err != nil {
-			logger.Error("Can't select rows", err)
-			return nil, nil, err
-		}
-		phones[phone.Id] = append(phones[phone.Id],phone.PhoneNumber)
-	}
 	rows.Close()
-	return contacts, phones, nil
+	return contacts, nil
 }
 
 func (db Mysqlrepo) Delete(id int) error {
@@ -133,43 +122,25 @@ func (db Mysqlrepo) Delete(id int) error {
 
 	logger.Info("Delete - RowsAffected", affected)
 
-	//result, err = db.Db.Exec(
-	//	"DELETE FROM Phonenumber WHERE contact_id = ?",
-	//	id,
-	//)
-	//if err != nil {
-	//	logger.Error("Can't add rows", err)
-	//	return err
-	//}
-	//affected, err = result.RowsAffected()
-	//if err != nil {
-	//	logger.Error("Can't add rows", err)
-	//	return err
-	//}
-	//
-	//logger.Info("Delete - RowsAffected", affected)
-
 	return nil
 
 }
 
-func (db Mysqlrepo) Update (contact schema.Contact, phones []string)  error {
-	//backcontacts, backphones, err := db.SelectItem(contact.Id)
+func (db Mysqlrepo) Update(contact schema.Contact, phones []string) error {
 
-	tx, err:=db.Db.Begin()
+	tx, err := db.Db.Begin()
 
-	sqlstr:= "UPDATE Contacts SET firstname =? , lastname=? where id=?"
+	sqlstr := "UPDATE Contacts SET firstname =? , lastname=? where id=?"
 
-	if _,err = tx.Exec(sqlstr,contact.FirstName, contact.LastName,contact.Id); err !=nil {
+	if _, err = tx.Exec(sqlstr, contact.FirstName, contact.LastName, contact.Id); err != nil {
 		tx.Rollback()
 		logger.Error("Can't insert rows", err)
 		return err
 	}
 
+	sqlstr1 := "delete from Phonenumber where contact_id = ? "
 
-	sqlstr1:= "delete from Phonenumber where contact_id = ? "
-
-	if _,err = tx.Exec(sqlstr1,contact.Id); err !=nil {
+	if _, err = tx.Exec(sqlstr1, contact.Id); err != nil {
 		tx.Rollback()
 		logger.Error("Can't insert rows", err)
 		return err
@@ -177,47 +148,83 @@ func (db Mysqlrepo) Update (contact schema.Contact, phones []string)  error {
 
 	for _, number := range phones {
 		sqlstr2 := "insert into Phonenumber (contact_id, Phonenumber) VALUES (?,?)"
-		if _,err = tx.Exec(sqlstr2,contact.Id,number); err !=nil {
+		if _, err = tx.Exec(sqlstr2, contact.Id, number); err != nil {
 			tx.Rollback()
 			logger.Error("Can't insert rows", err)
 			return err
 		}
-
 	}
 	err = tx.Commit()
 
 	return err
 }
 
+func (db Mysqlrepo) selectItemPhones(contact *schema.Contact) error {
+	rowsphone, err := db.Db.Query("select Phonenumber from Phonenumber where contact_id = ?", contact.Id)
+	for rowsphone.Next() {
+		phone := new(string)
+		err = rowsphone.Scan(&phone)
+		if err != nil {
+			logger.Error("Can't select rows", err)
+			return err
+		}
+		contact.Phones = append(contact.Phones, *phone)
+	}
+	rowsphone.Close()
+	return nil
+}
 
-func (db Mysqlrepo) SelectItem(id int)  (map[int]schema.Contact, map[int][]string, error) {
+func (db Mysqlrepo) SelectItem(id int) (schema.Contact, error) {
 	contacts := make(map[int]schema.Contact)
-	phones := make(map[int][]string)
 	sqlStr := "select id, firstname, lastname from Contacts where id=?"
-	rows, err := db.Db.Query(sqlStr,id)
+	rowscontact := db.Db.QueryRow(sqlStr, id)
+	contact := &schema.Contact{}
+	err := rowscontact.Scan(&contact.Id, &contact.FirstName, &contact.LastName)
+	if err != nil {
+		logger.Error("Can't select rows", err)
+		return schema.Contact{}, err
+	}
+	db.selectItemPhones(contact)
+	contacts[contact.Id] = *contact
+
+	return *contact, nil
+}
+
+func (db Mysqlrepo) Search(field string) (map[int]schema.Contact, error) {
+	contacts := make(map[int]schema.Contact)
+	sqlStr := `select id, firstname, lastname from Contacts where upper(firstname) like upper(concat('%',?, '%'))
+union all select id, firstname, lastname from Contacts where upper(lastname)  like upper(concat('%',?, '%'))
+`
+	rows, err := db.Db.Query(sqlStr, field, field)
 	for rows.Next() {
 		contact := &schema.Contact{}
 		err = rows.Scan(&contact.Id, &contact.FirstName, &contact.LastName)
 		if err != nil {
 			logger.Error("Can't select rows", err)
-			return nil, nil, err
+			return nil, err
 		}
+		db.selectItemPhones(contact)
 		contacts[contact.Id] = *contact
 	}
+	rows.Close()
 
-	rows, err = db.Db.Query("select contact_id, Phonenumber from Phonenumber where contact_id = ?",id)
+	rows, err = db.Db.Query("select contact_id from Phonenumber where upper(Phonenumber) like upper(concat('%',?,'%'))", field)
 	for rows.Next() {
-		phone := &schema.Phone{}
-		err = rows.Scan(&phone.Id, &phone.PhoneNumber)
+		contactId := new(int)
+		err = rows.Scan(&contactId)
 		if err != nil {
 			logger.Error("Can't select rows", err)
-			return nil, nil, err
+			return nil, err
 		}
-		phones[phone.Id] = append(phones[phone.Id],phone.PhoneNumber)
+		contact, err := db.SelectItem(*contactId)
+		if err != nil {
+			logger.Error("Can't select rows", err)
+			return nil, err
+		}
+
+		contacts[contact.Id] = contact
 	}
+
 	rows.Close()
-	return contacts, phones, nil
-
-
-
+	return contacts, nil
 }
