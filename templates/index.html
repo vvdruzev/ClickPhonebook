@@ -3,23 +3,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>Narrow Jumbotron Template for Bootstrap</title>
-
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 
 <body>
-<div class="container" style=""></div>
-
-<!-- /container -->
 
 
 <div class="container" style="max-width: 900px; min-width: 0px; text-align: left; float: none;">
-    <form style="">
-        <div class="form-group">
-            <div class="form-group" style=""><label>Text</label><input type="text" class="form-control"></div>
+
+
+    <form action="/search" class="card card-sm">
+        <div class="card-body row no-gutters align-items-center">
+            <div class="col-auto">
+                <i class="fas fa-search h4 text-body"></i>
+            </div>
+            <!--end of col-->
+            <div class="col">
+                <input class="form-control form-control-lg form-control-borderless" type="search" placeholder="Search topics or keywords" name="filder" id="filder" value="{{.filder}}">
+            </div>
+            <!--end of col-->
+            <div class="col-auto">
+                <button class="btn btn-lg btn-success" type="submit">Search</button>
+            </div>
+            <!--end of col-->
         </div>
     </form>
     <a class="btn btn-success" href="/contacts/new"
@@ -43,7 +51,7 @@
             <tr>
                 <th scope="row">{{$value.Id}}</th>
                 <td>{{$value.FirstName}} &nbsp;{{$value.LastName}}
-                    <a class="btn btn-primary" href="/contacts/{{.Id}}"
+                    <a class="btn btn-primary" href="/contacts/{{.Id}}/addphone"
                             style="text-align: left; float: right; border-style: solid;">AddPhone </a>
 
                 </td>
@@ -54,7 +62,7 @@
                 {{end}}
                 </td>
                 <td style="max-width: 170px; width: 171px;">
-                    <a href="/items/{{.Id}}" class="btn btn-primary">Edit</a>
+                    <a href="/contacts/{{.Id}}" class="btn btn-primary">Edit</a>
                     <span data-id="{{.Id}}" class="do-delete btn btn-danger">Del</span>
                 </td>
             </tr>
@@ -63,5 +71,25 @@
         </table>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    $('.do-delete').click(function () {
+        if (!confirm("Are you sure?")) {
+            return
+        }
+        $elem = $(this)
+        $.ajax({
+            url: '/contacts/' + $elem.data("id"),
+            type: 'DELETE',
+            data: {},
+            success: function (resp) {
+                if (resp.affected > 0) {
+                    $elem.parent().parent().remove()
+                }
+            },
+        });
+    })
+</script>
 </body>
 </html>
